@@ -9,8 +9,8 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
-BATCH_SIZE = 128        # minibatch size
+BUFFER_SIZE = int(1e6)  # replay buffer size
+BATCH_SIZE = 64         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR_ACTOR = 1e-4         # learning rate of the actor 
@@ -19,8 +19,6 @@ WEIGHT_DECAY = 0.01     # L2 weight decay
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# https://knowledge.udacity.com/questions/21712 
-# Conventionally at each time step one calculates the gradient and updates the parameters of (actor and critic) network. But here we get better result if we do not do so. That is for 10 steps just add the data in replay buffer, then for 10 steps perform conventional update. Thus in 20 time steps the network gets updated only 10 times.
 
 class Agent():
     """Interacts with and learns from the environment."""
@@ -111,7 +109,7 @@ class Agent():
         # Minimize the loss
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
+        torch.nn.utils.clip_grad_norm_(self.critic_local.parameters(), 1)
         self.critic_optimizer.step()
 
         # ---------------------------- update actor ---------------------------- #
